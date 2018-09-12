@@ -48,10 +48,12 @@ export default {
     prev() {
       if (this.offset === 0) return
       this.offset -= 4
+      this.showNav = false
     },
     next() {
       if (this.offset + 4 >= this.panelists.length) return
       this.offset += 4
+      this.showNav = false
     },
     async fetchVotes() {
       const { data: votes } = await api.fetchVotes()
@@ -65,11 +67,10 @@ export default {
     add(data) {
       const { memo, opponent: { full_name, user_id } } = data
       const panelist = this.panelists[parseInt(memo, 10) - 1] // the index of candidate is in memo
-      const vote = {
+      panelist.votes.push({
         voter_id: user_id,
         voter: full_name || '相場ユーザー',
-      }
-      panelist.votes.push(vote)
+      })
       panelist.voteCounts += 1
     }
   },
