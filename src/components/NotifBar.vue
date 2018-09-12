@@ -42,18 +42,6 @@ export default {
 </script>
 
 <style scoped>
-.list-notif-item {
-  transition: all 0.3s;
-  display: inline-block;
-  margin-right: 10px;
-}
-.list-notif-enter, .list-notif-leave-to {
-  opacity: 0;
-  transform: translateX(-50%);
-}
-.list-notif-leave-active {
-  position: absolute;
-}
 .notif-stack {
   position: absolute;
   width: 300px;
@@ -91,5 +79,18 @@ export default {
   transform-origin: 50% 50%;
   transform: translateY(-50%) rotate(45deg);
 }
-
+.list-notif-item {
+  transition: all 0.3s;
+  display: inline-block;
+  margin-right: 10px;
+}
+.list-notif-enter {
+  opacity: 0;
+  transform: translateX(-50%);
+}
+.list-notif-leave-to {
+  opacity: 0;
+  transition-duration: 0.5s;
+  transform: translateX(10%);
+}
 </style>
