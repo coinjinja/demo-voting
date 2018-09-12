@@ -81,8 +81,6 @@ export default {
 }
 .list-notif-item {
   transition: all 0.3s;
-  display: inline-block;
-  margin-right: 10px;
 }
 .list-notif-enter {
   opacity: 0;
