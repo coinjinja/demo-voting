@@ -1,7 +1,7 @@
 <template>
   <div id="app">
     <div class="container">
-      <VoteBar v-for="(p, index) in panelists" :key="index"
+      <VoteBar v-for="(p, index) in currentPanel" :key="index"
         :name="p.name" 
         :votes="p.votes"
         :vote-count="p.voteCount"
@@ -20,79 +20,70 @@
 
 <script>
 import VoteBar from './components/VoteBar.vue'
-import faker from 'faker'
 import api from './utils/api'
-
-const names = ['小幡和輝', '正田英樹', '川田修平', '深山周作', '平野淳也', '深井未来生', '中村昂平', '竹田匡宏', 'ポイン', '安昌浩', '神谷知愛']
 
 export default {
   name: 'app',
   components: { VoteBar },
   data() {
-    return {
+    const names = ['小幡和輝', '正田英樹', '川田修平', '深山周作', '平野淳也', '深井未来生', '中村昂平', '竹田匡宏', 'ポイン', '安昌浩', '神谷知愛']
+    const panelists = names.map((name, index) => ({ 
+      name,
       votes: [],
-      voteCounts: [],
+      voteCount: 0,
+      avatar: require(`./assets/player-${index + 1}.png`)
+    }))
+    return {
+      panelists,
       offset: 0,
       showNav: false,
     }
   },
   computed: {
-    panelists() {
-      return names.slice(this.offset, this.offset + 4).map((name, index) => ({ 
-        name,
-        votes: this.votes[this.offset + index] || [],
-        voteCount: this.voteCounts[this.offset + index] || 0,
-        avatar: require(`./assets/player-${this.offset + index + 1}.png`)
-      }))
+    currentPanel() {
+      return this.panelists.slice(this.offset, this.offset + 4)
     }
   },
   methods: {
     prev() {
-      if (this.offset === 0) {
-        return
-      }
+      if (this.offset === 0) return
       this.offset -= 4
     },
     next() {
-      if (this.offset + 4 >= names.length) {
-        return
-      }
+      if (this.offset + 4 >= this.panelists.length) return
       this.offset += 4
     },
     async fetchVotes() {
       const { data: votes } = await api.fetchVotes()
-      this.votes = votes.map(() => [])
-      this.voteCounts = votes.map((v, index) => {
-        if (this.voteCounts[index] >= v.votes) {
-          return this.voteCounts[index]
-        } else {
-          return v.votes
+      votes.forEach(v => {
+        // make sure the numbers won't be reversed
+        if (this.panelists[v.candidate - 1].voteCount < v.votes) {
+          this.panelists[v.candidate - 1].voteCount = v.votes
         }
       })
     },
     add(data) {
       const { memo, opponent: { full_name, user_id } } = data
-      const index = parseInt(memo, 10) - 1
+      const panelist = this.panelists[parseInt(memo, 10) - 1] // the index of candidate is in memo
       const vote = {
         voter_id: user_id,
-        voter: full_name || faker.name.findName(),
+        voter: full_name || '相場ユーザー',
       }
-      this.votes[index].push(vote)
-      this.voteCounts[index] += 1
+      panelist.votes.push(vote)
+      panelist.voteCounts += 1
     }
   },
   mounted() {
-    setTimeout(() => this.fetchVotes(), 1000)
-    this.timer = setInterval(() => this.fetchVotes(), 3000)
+    this.fetchVotes() // load vote count
+    this.timer = setInterval(() => this.fetchVotes(), 3000) // load vote count every 3 seconds to correct the vote count
 
     this.$options.sockets.onmessage = (data) => {
       try {
         const json = JSON.parse(data.data).data
         const { asset_id } = json
-        if (asset_id !== '07065d64-fd33-39b5-b275-9a2cc4806ef4') {
-          return
+        if (asset_id === '07065d64-fd33-39b5-b275-9a2cc4806ef4') { // The only valid token for voting
+          this.add(json)
         }
-        this.add(json)
       } catch (error) {
         return
       }
