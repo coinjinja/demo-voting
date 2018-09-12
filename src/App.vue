@@ -21,62 +21,83 @@
 <script>
 import VoteBar from './components/VoteBar.vue'
 import faker from 'faker'
+import api from './utils/api'
+
+const names = ['小幡和輝', '正田英樹', '川田修平', '深山周作', '平野淳也', '深井未来生', '中村昂平', '竹田匡宏', 'ポイン', '安昌浩', '神谷知愛']
 
 export default {
   name: 'app',
   components: { VoteBar },
   data() {
-    const panelists = [
-      { 
-        name: "深井未来生" ,
-        votes: [],
-        voteCount: 110,
-        avatar: require('./assets/player-1.png')
-      },
-      { 
-        name: "平野淳也" ,
-        votes: [],
-        voteCount: 87,
-        avatar: require('./assets/player-2.png')
-      },
-      { 
-        name: "中村昂平" ,
-        votes: [],
-        voteCount: 173,
-        avatar: require('./assets/player-3.png')
-      },
-      { 
-        name: "竹田匡宏" ,
-        votes: [],
-        voteCount: 3,
-        avatar: require('./assets/player-4.png')
-      },
-    ]
     return {
-      panelists,
+      votes: [],
+      voteCounts: [],
+      offset: 0,
       showNav: false,
+    }
+  },
+  computed: {
+    panelists() {
+      return names.slice(this.offset, this.offset + 4).map((name, index) => ({ 
+        name,
+        votes: this.votes[this.offset + index] || [],
+        voteCount: this.voteCounts[this.offset + index] || 0,
+        avatar: require(`./assets/player-${this.offset + index + 1}.png`)
+      }))
     }
   },
   methods: {
     prev() {
-      // TODO: connect ws for new votes
-      const vote = {
-        voter_id: new Date().toISOString(),
-        voter: faker.name.findName(),
+      if (this.offset === 0) {
+        return
       }
-      this.panelists[3].votes.push(vote)
-      this.panelists[3].voteCount++
+      this.offset -= 4
     },
     next() {
-      // TODO: connect ws for new votes
-      const vote = {
-        voter_id: new Date().toISOString(),
-        voter: faker.name.findName(),
+      if (this.offset + 4 >= names.length) {
+        return
       }
-      this.panelists[2].votes.push(vote)
-      this.panelists[2].voteCount++
+      this.offset += 4
+    },
+    async fetchVotes() {
+      const { data: votes } = await api.fetchVotes()
+      this.votes = votes.map(() => [])
+      this.voteCounts = votes.map((v, index) => {
+        if (this.voteCounts[index] >= v.votes) {
+          return this.voteCounts[index]
+        } else {
+          return v.votes
+        }
+      })
+    },
+    add(data) {
+      const { memo, opponent: { full_name, user_id } } = data
+      const index = parseInt(memo, 10) - 1
+      const vote = {
+        voter_id: user_id,
+        voter: full_name || faker.name.findName(),
+      }
+      this.votes[index].push(vote)
+      this.voteCounts[index] += 1
     }
   },
+  mounted() {
+    setTimeout(() => this.fetchVotes(), 1000)
+    this.timer = setInterval(() => this.fetchVotes(), 3000)
+
+    this.$options.sockets.onmessage = (data) => {
+      try {
+        const json = JSON.parse(data.data).data
+        const { asset_id } = json
+        if (asset_id !== '07065d64-fd33-39b5-b275-9a2cc4806ef4') {
+          return
+        }
+        this.add(json)
+      } catch (error) {
+        return
+      }
+    }
+  }
 }
 </script>
 
