@@ -104,14 +104,14 @@ body, button {
   left: 0;
   right: 0;
   display: flex;
-  padding: 0 50px;
+  padding: 0 40px;
 }
 .header {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  padding: 20px 50px;
+  padding: 20px 40px;
   color: #8c9599;
   font-weight: 600;
   font-size: 36px;
@@ -128,7 +128,7 @@ body, button {
   position: absolute;
   top: 80px;
   right: 0px;
-  margin-right: 50px;
+  margin-right: 40px;
 }
 .nav button {
   cursor: pointer;
