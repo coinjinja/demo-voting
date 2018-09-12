@@ -4,15 +4,16 @@
       <VoteBar v-for="(p, index) in panelists" :key="index"
         :name="p.name" 
         :votes="p.votes"
+        :vote-count="p.voteCount"
         :avatar="p.avatar" />
     </div>
     <div class="header">
       <div class="session">ブロックチェーンの世界で、日本企業は勝てるのか</div>
       <div class="title" @click="showNav = !showNav">#NEC2018</div>
-    </div>
-    <div class="nav" v-show="showNav">
-      <button class="prev" @click="prev()">次へ</button>
-      <button class="next" @click="next()">前へ</button>
+      <div class="nav" v-show="showNav">
+        <button class="prev" @click="prev()">前へ</button>
+        <button class="next" @click="next()">次へ</button>
+      </div>
     </div>
   </div>
 </template>
@@ -29,21 +30,25 @@ export default {
       { 
         name: "深井未来生" ,
         votes: [],
+        voteCount: 110,
         avatar: require('./assets/player-1.png')
       },
       { 
         name: "平野淳也" ,
         votes: [],
+        voteCount: 87,
         avatar: require('./assets/player-2.png')
       },
       { 
         name: "中村昂平" ,
         votes: [],
+        voteCount: 173,
         avatar: require('./assets/player-3.png')
       },
       { 
         name: "竹田匡宏" ,
         votes: [],
+        voteCount: 3,
         avatar: require('./assets/player-4.png')
       },
     ]
@@ -56,35 +61,22 @@ export default {
     prev() {
       // TODO: connect ws for new votes
       const vote = {
+        voter_id: new Date().toISOString(),
         voter: faker.name.findName(),
-        show: true,
       }
       this.panelists[3].votes.push(vote)
+      this.panelists[3].voteCount++
     },
     next() {
       // TODO: connect ws for new votes
       const vote = {
+        voter_id: new Date().toISOString(),
         voter: faker.name.findName(),
-        show: true,
       }
       this.panelists[2].votes.push(vote)
+      this.panelists[2].voteCount++
     }
   },
-  mounted() {
-    // TODO: load all votes from server, which don't need to be shown
-    function addElements(arr, n) {
-      for (let i = 0; i < n; i++) {
-        arr.push({
-          voter: faker.name.findName(),
-          show: false,
-        })
-      }
-    }
-    addElements(this.panelists[0].votes, 128)
-    addElements(this.panelists[1].votes, 94)
-    addElements(this.panelists[2].votes, 191)
-    addElements(this.panelists[3].votes, 3)
-  }
 }
 </script>
 
@@ -92,7 +84,8 @@ export default {
 body {
   margin: 0;
   padding: 0;
-  background: linear-gradient(to bottom, #1a2b33 0%,#1e3751 100%);
+  box-sizing: border-box;
+  background: #000;
 }
 body, button {
   font-family: "Open Sans", "Source Han Sans", -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -104,26 +97,27 @@ body, button {
   color: #2c3e50;
   width: 100vw;
   height: 100vh;
-  padding: 0;
-  margin: 0;
-  /* background-color: #1a2b33; */
 }
 .container {
   position: absolute;
   bottom: 0;
-  width: 100%;
+  left: 0;
+  right: 0;
   display: flex;
+  padding: 0 50px;
 }
 .header {
   position: absolute;
   top: 0;
-  width: 100%;
+  left: 0;
+  right: 0;
+  padding: 20px 50px;
   color: #8c9599;
   font-weight: 600;
-  font-size: 42px;
+  font-size: 36px;
   display: flex;
-  padding: 20px;
   box-sizing: border-box;
+  background: rgba(0, 0, 0, 60%);
 }
 .header .title {
   text-align: right;
@@ -134,25 +128,24 @@ body, button {
   position: absolute;
   top: 80px;
   right: 0px;
-  margin-right: 20px;
+  margin-right: 50px;
 }
 .nav button {
   cursor: pointer;
-  display: block;
-  font-size: 32px;
-  font-weight: 200;
+  font-size: 28px;
   background: transparent;
   color: #8c9599;
   border: 0;
-  padding-right: 20px;
+  padding: 0 10px;
   outline: 0;
   border-right: 2px solid #8c9599;
-  margin-top: 10px;
-  transition: all 0.3s ease-out;
+}
+.nav button.prev {
+  border-right: 0;
+  border-left: 2px solid #8c9599;
 }
 .nav button:active {
   color: #ccc;
   border-right-color: #ccc;
 }
-
 </style>

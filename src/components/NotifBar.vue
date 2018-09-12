@@ -1,78 +1,83 @@
 <template>
-<div class="notif-stack">
-  <div class="notif-bar" v-for="(v, index) in reversed_votes" 
-    :key="index" :style="{ opacity: v.show ? 1 : 0 }">
+<transition-group name="list-notif" class="notif-stack" tag="div">
+  <div class="notif-bar list-notif-item" v-for="v in queue" :key="v.voter_id">
     +1 {{v.voter}}
   </div>
-</div>
+</transition-group>
 </template>
 
 <script>
 export default {
   name: 'Notif-Bar',
   props: {
-    votes: {
+    queue: {
       default: [],
       type: Array,
     },
   },
   data() {
     return {
-      count: 0
-    }
-  },
-  computed: {
-    reversed_votes() {
-      return this.votes.slice().reverse()
+      displayed: {},
     }
   },
   watch: {
-    votes: function(newVotes) {
-      if (this.count !== 0) {
-        function hide(item) {
-          setTimeout(() => {
-            console.log(item)
-            item.show = false
-          }, 5000)
-        }
-        for (let i = this.count; i < newVotes.length; i++) {
-          newVotes[i].show = true
-          hide(newVotes[i])
-        }
+    queue: function(newqueue) {
+      const hide = (voter_id) => {
+        setTimeout(() => {
+          const found = this.queue.find((e) => {
+            return e.voter_id === voter_id
+          })
+          if (found) this.queue.splice(found, 1)
+        }, 5000)
       }
-      this.count = newVotes.length
+      for (const vote of newqueue) {
+        const voter_id = vote.voter_id
+        if (voter_id in this.displayed) continue
+        this.displayed[voter_id] = true
+        hide(voter_id)
+      }
     }
   },
 }
 </script>
 
 <style scoped>
-.notif-stack .notif-bar:nth-child(2) {
-  top: -290px;
+.list-notif-item {
+  transition: all 0.3s;
+  display: inline-block;
+  margin-right: 10px;
 }
-.notif-stack .notif-bar:nth-child(3) {
-  top: -360px;
+.list-notif-enter, .list-notif-leave-to {
+  opacity: 0;
+  transform: translateX(-50%);
 }
-.notif-stack .notif-bar:nth-child(4) {
-  top: -430px;
-}
-.notif-stack .notif-bar:nth-child(5) {
-  top: -490px;
-}
-.notif-bar {
+.list-notif-leave-active {
   position: absolute;
+}
+.notif-stack {
+  position: absolute;
+  width: 300px;
+  bottom: 100%;
+  padding-bottom: 170px;
   transform: translateX(-50%);
   left: 50%;
+  display: flex;
+  overflow: hidden;
+  flex-direction: column;
+}
+.notif-bar {
+  align-self: center;
   color: white;
   font-weight: bold;
   font-size: 20px;
-  top: -220px;
   padding: 10px 30px;
   max-width: 200px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  transition: all 1s;
+  position: relative;
+  align-items: center;
+  margin: 5px 0;
 }
 .notif-bar::before {
   position: absolute;

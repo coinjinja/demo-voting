@@ -5,8 +5,8 @@
       <img :alt="name" :src="avatar">
     </div>
     <div class="name">{{name}}</div>
-    <div class="number" v-if="votes">{{votes.length}}</div>
-    <NotifBar :votes="votes"/>
+    <div class="number">{{voteCount}}</div>
+    <NotifBar :queue="votes"/>
   </div>
 </div>
 </template>
@@ -19,15 +19,16 @@ export default {
   components: { NotifBar },
   props: {
     name: String,
-    votes: {
-      default: [],
-      type: Array,
+    votes: Array,
+    voteCount: {
+      default: 0,
+      type: Number,
     },
     avatar: String,
   },
   computed: {
     barHeight() {
-      return parseInt(120 + (this.votes.length ** 0.8) * 5, 10)
+      return parseInt(120 + (this.voteCount ** 0.8) * 5, 10)
     }
   }
 }
@@ -58,7 +59,7 @@ export default {
 .bar .name {
   position: absolute;
   left: 30%;
-  bottom: 30px;
+  bottom: 50px;
   font-size: 36px;
   font-weight: 600;
   white-space: nowrap;
@@ -70,12 +71,10 @@ export default {
   font-size: 72px;
   color: #fff;
   width: 100%;
-  /* font-stretch: condensed; */
   position: absolute;
   top: -150px;
 }
 .diamond {
-  /* background-color: red; */
   width: 70px;
   height: 70px;
   object-fit: cover;
