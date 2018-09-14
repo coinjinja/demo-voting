@@ -31,7 +31,7 @@ export default {
       name,
       votes: [],
       voteCount: 0,
-      avatar: require(`./assets/player-${index + 1}.png`)
+      avatar: require(`@/assets/player-${index + 1}.jpg`)
     }))
     return {
       panelists,
