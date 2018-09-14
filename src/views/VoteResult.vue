@@ -1,8 +1,8 @@
 <template>
 <div>
   <div class="header">
-   <div>NEC2018 投票結果</div>
-   <div class="title" @click="showNav = !showNav">#NEC2018</div>
+   <div>いいね！ランキング</div>
+    <div class="title">#NEC2018</div>
   </div>
   <div class="container">
     <div class="top3">
@@ -68,14 +68,89 @@ export default {
 
 <style scoped>
 .container {
-  top: 0;
+  top: 90px;
+}
+.top3, .others {
+  flex: 1;
+  align-self: center;
+  display: flex;
+  flex-direction: column;
+}
+.top3 > div {
+  position: relative;
+  padding: 30px 10px 30px 20px;
+  font-size: 40px;
+  font-weight: 600;
+  color: #fff;
+  align-self: center;
+}
+.top3 .name {
+  width: 250px;
+  padding: 20px 60px 20px 80px;
+  overflow: hidden;
+  position: relative;
+}
+.top3 .name::before {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 0;
+  content: ' ';
+  width: 80%;
+  padding-bottom: 80%;
+  transform-origin: 50% 50%;
+  transform: translateY(-50%) rotate(45deg);
+  background: linear-gradient(-45deg, #eab839 0%, #eab839 50%, #ffd359 50%, #ffd359 100%);
+}
+.top3 div:nth-child(2) .name::before {
+  background: linear-gradient(-45deg, #808080 0%, #808080 50%, #adaaaa 50%, #adaaaa 100%);
+}
+.top3 div:nth-child(3) .name::before {
+  background: linear-gradient(-45deg, #da6329 0%, #da6329 50%, #f37d43 50%, #f37d43 100%);
+}
+.top3 .count {
+  font-family: DINCondensed-Bold;
+  font-size: 60px;
+  position: absolute;
+  padding-top: 16px;
+  top: 50%;
+  right: 0;
+  transform: translate(100%, -50%);
+}
+.others {
+  font-size: 28px;
+  font-weight: bold;
+  color: #fff;
+}
+.others > div {
+  display: flex;
+  padding: 12px;
+  align-self: center;
+}
+.others .name {
+  text-align: left;
+  width: 350px;
+}
+.diamond {
+  position: absolute;
+  left: -10px;
+  top: 50%;
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  outline: 10px solid #fff;
+  outline-offset: -10px;
+  overflow: hidden;
+  margin: 0 auto;
+  transform-origin: 50% 50%;
+  transform: translateY(-50%) rotate(45deg);
+  border: 8px solid #fff;
+}
+.diamond img {
+  transform-origin: 50% 50%;
+  transform: rotate(-45deg) translateY(-23.5%);
+  width: 150%;
+  height: 150%;
 }
 
-h1 {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  text-align: left;
-}
 </style>
