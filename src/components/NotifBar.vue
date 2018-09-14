@@ -10,10 +10,7 @@
 export default {
   name: 'Notif-Bar',
   props: {
-    queue: {
-      default: [],
-      type: Array,
-    },
+    queue: Array
   },
   data() {
     return {

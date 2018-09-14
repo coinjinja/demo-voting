@@ -1,60 +1,61 @@
 <template>
-  <div id="app">
-    <div class="container">
-      <VoteBar v-for="(p, index) in currentPanel" :key="index"
-        :name="p.name" 
-        :votes="p.votes"
-        :vote-count="p.voteCount"
-        :avatar="p.avatar" />
-    </div>
+  <div>
     <div class="header">
-      <div class="session">ブロックチェーンの世界で、日本企業は勝てるのか</div>
+      <div>{{title}}</div>
       <div class="title" @click="showNav = !showNav">#NEC2018</div>
       <div class="nav" v-show="showNav">
         <button class="prev" @click="prev()">前へ</button>
         <button class="next" @click="next()">次へ</button>
       </div>
     </div>
+    <div class="container">
+    <VoteBar v-for="(p, index) in currentPanel" :key="index"
+      :name="p.name" 
+      :votes="p.votes"
+      :vote-count="p.voteCount"
+      :avatar="p.avatar" />
+    </div>
   </div>
 </template>
 
 <script>
-import VoteBar from './components/VoteBar.vue'
-import api from './utils/api'
+import VoteBar from '@/components/VoteBar.vue'
+import api from '@/utils/api'
 
 export default {
-  name: 'app',
+  name: 'TalkSession',
   components: { VoteBar },
   data() {
-    const names = ['小幡和輝', '正田英樹', '川田修平', '深山周作', '平野淳也', '深井未来生', '中村昂平', '竹田匡宏', 'ポイン', '安昌浩', '神谷知愛']
+    const titles = [
+      '仮想通貨は、地域創生の転換点を生み出せるのか',
+      'ブロックチェーンの世界で、日本企業は勝てるのか',
+      '日本発プロジェクトが作る新しいコミュニティの形'
+    ]
+    const names = [
+      '小幡和輝', '正田英樹', '川田修平', '深山周作', '平野淳也', '深井未来生', 
+      '中村昂平', '竹田匡宏', 'ポイン', '安昌浩', '神谷知愛'
+    ]
     const panelists = names.map((name, index) => ({ 
       name,
       votes: [],
       voteCount: 0,
       avatar: require(`@/assets/player-${index + 1}.jpg`)
     }))
+    const offset = this.$route.meta.offset
+    const showNav = false
     return {
-      panelists,
-      offset: 0,
-      showNav: false,
+      panelists, offset, titles, showNav
     }
   },
   computed: {
     currentPanel() {
-      return this.panelists.slice(this.offset, this.offset + 4)
+      return this.panelists.slice(this.offset * 4, this.offset * 4 + 4)
+    },
+    title() {
+      return this.titles[this.offset]
     }
   },
   methods: {
-    prev() {
-      if (this.offset === 0) return
-      this.offset -= 4
-      this.showNav = false
-    },
-    next() {
-      if (this.offset + 4 >= this.panelists.length) return
-      this.offset += 4
-      this.showNav = false
-    },
     async fetchVotes() {
       const { data: votes } = await api.fetchVotes()
       votes.forEach(v => {
@@ -65,14 +66,25 @@ export default {
       })
     },
     add(data) {
-      const { memo, opponent: { full_name, user_id } } = data
+      const { asset_id, memo, opponent: { full_name, user_id } } = data
+      if (asset_id !== '07065d64-fd33-39b5-b275-9a2cc4806ef4') return // The only valid token for voting
+      
       const panelist = this.panelists[parseInt(memo, 10) - 1] // the index of candidate is in memo
       panelist.votes.push({
         voter_id: user_id,
         voter: full_name || '相場ユーザー',
       })
-      panelist.voteCounts += 1
-    }
+      panelist.voteCount += 1
+    },
+    prev() {
+      if (this.offset > 0) this.offset--
+      this.showNav = false
+    },
+    next() {
+      if (this.offset < 2) this.offset++
+      else this.$router.push({ path: '/result' })
+      this.showNav = false
+    },
   },
   mounted() {
     this.fetchVotes() // load vote count
@@ -80,45 +92,16 @@ export default {
 
     this.$options.sockets.onmessage = (data) => {
       try {
-        const json = JSON.parse(data.data).data
-        const { asset_id } = json
-        if (asset_id === '07065d64-fd33-39b5-b275-9a2cc4806ef4') { // The only valid token for voting
-          this.add(json)
-        }
+        this.add(JSON.parse(data.data).data)
       } catch (error) {
-        return
+        console.error(error)
       }
     }
   }
 }
 </script>
 
-<style>
-body {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  background: #000;
-}
-body, button {
-  font-family: "Open Sans", "Source Han Sans", -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-#app {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  width: 100vw;
-  height: 100vh;
-}
-.container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  padding: 0 40px;
-}
+<style scoped>
 .header {
   position: absolute;
   top: 0;
@@ -128,9 +111,8 @@ body, button {
   color: #8c9599;
   font-weight: 600;
   font-size: 36px;
-  display: flex;
-  box-sizing: border-box;
   background: rgba(0, 0, 0, 60%);
+  display: flex;
 }
 .header .title {
   text-align: right;
