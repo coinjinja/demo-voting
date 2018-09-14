@@ -11,7 +11,8 @@
     "@coinjinja/coinview-sdk": "^1.0.2-dev",
     "isomorphic-fetch": "^2.2.1",
     "vue": "^2.5.17",
-    "vue-native-websocket": "^2.0.9"
+    "vue-native-websocket": "^2.0.11",
+    "vue-router": "^3.0.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.0.1",
