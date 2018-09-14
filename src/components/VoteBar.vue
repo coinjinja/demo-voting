@@ -65,6 +65,7 @@ export default {
   white-space: nowrap;
   background: #fff;
   padding: 0px 10px;
+  box-shadow: rgba(0, 0, 0, 10%) 0 2px 10px;
 }
 .bar .number {
   font-family: "DIN Condensed";

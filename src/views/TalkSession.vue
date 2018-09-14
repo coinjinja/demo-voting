@@ -102,23 +102,7 @@ export default {
 </script>
 
 <style scoped>
-.header {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  padding: 20px 40px;
-  color: #8c9599;
-  font-weight: 600;
-  font-size: 36px;
-  background: rgba(0, 0, 0, 60%);
-  display: flex;
-}
-.header .title {
-  text-align: right;
-  flex: 1;
-  cursor: pointer;
-}
+
 .nav {
   position: absolute;
   top: 80px;
